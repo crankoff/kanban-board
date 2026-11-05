@@ -1,0 +1,5 @@
+node_modules/
+client/dist/
+server/kanban.db
+*.log
+server/uploads/
