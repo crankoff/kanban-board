@@ -57,6 +57,18 @@ function CardModal({ cardId, board, user, reloadKey, onChanged, onClose }) {
     update({ description })
   }
 
+  // на телефоне drag&drop не работает, поэтому карточку можно перенести через список
+  async function moveToColumn(columnId) {
+    const column = board.columns.find(c => c.id === columnId)
+    try {
+      await api(`/cards/${cardId}/move`, 'PUT', { columnId, position: column.cards.length })
+      await loadCard(false)
+      onChanged()
+    } catch (err) {
+      alert(err.message)
+    }
+  }
+
   async function toggleLabel(labelId) {
     const has = card.labels.includes(labelId)
     await api(`/cards/${cardId}/labels/${labelId}`, has ? 'DELETE' : 'POST')
@@ -170,6 +182,12 @@ function CardModal({ cardId, board, user, reloadKey, onChanged, onClose }) {
         <div className="modal-body">
           <div className="modal-main">
             <div className="modal-row">
+              <div>
+                <div className="field-label">Колонка</div>
+                <select value={card.column_id} onChange={e => moveToColumn(Number(e.target.value))}>
+                  {board.columns.map(c => <option key={c.id} value={c.id}>{c.title}</option>)}
+                </select>
+              </div>
               <div>
                 <div className="field-label">Исполнитель</div>
                 <select
